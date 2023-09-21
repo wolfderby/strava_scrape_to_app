@@ -1,13 +1,12 @@
-//D:\pitt\test-vite-app-3\frontend\src\components\StavaComponent.tsx
-
+//D:\pitt\test-vite-app-3\frontend\src\components\StravaComponent.tsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ReactApexChart from 'react-apexcharts';
 
 const StravaComponent: React.FC = () => {
-  const [options, setOptions] = useState({
+  const [options, _setOptions] = useState({
     chart: {
-      type: 'line',
+      type: 'line' as 'line',
     },
   });
 
@@ -35,5 +34,3 @@ const StravaComponent: React.FC = () => {
 };
 
 export default StravaComponent;
-
-  export default StravaComponent;
