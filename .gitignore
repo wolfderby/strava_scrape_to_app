@@ -1,0 +1,44 @@
+node_modules/
+__pycache__/
+node_modules/
+__pycache__/
+
+# Ignore Python virtual environment
+/backend/venv/
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# Ignore hidden Python files like __pycache__
+__pycache__/
+
+# Ignore frontend dependencies
+frontend/node_modules/
+
+# Ignore frontend build directory
+frontend/dist/
+
+# Ignore public assets that are generated or compiled
+frontend/public/generated/
+
+# Ignore IDE-specific settings
+.vscode/
+.idea/
+
+# Ignore logs
+*.log
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.swo
+
+# Ignore database files
+*.db
+*.sqlite3
+
+# Ignore docs build files
+docs/build/
