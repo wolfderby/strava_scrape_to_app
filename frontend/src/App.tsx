@@ -1,14 +1,12 @@
-// import React from 'react';
-import SimpleChart from './components/SimpleChart.tsx'; // or './components/SimpleChart' based on your directory structure
+//D:\pitt\test-vite-app-3\frontend\src\App.tsx
+import StravaComponent from './components/StravaComponent';
 
 function App() {
   return (
-    <div>
-      <h1>My React App</h1>
-      hello world
-      <SimpleChart />
+    <div className="App">
+      <StravaComponent />
     </div>
   );
 }
 
-export default App
+export default App;

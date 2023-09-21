@@ -1,6 +1,7 @@
 {
 	"devDependencies": {
 		"apexcharts": "^3.42.0",
+		"fastapi": "^0.0.8",
 		"react-apexcharts": "^1.4.1"
 	}
 }
