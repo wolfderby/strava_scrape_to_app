@@ -12,11 +12,13 @@
   "dependencies": {
     "apexcharts": "^3.42.0",
     "axios": "^1.5.0",
+    "d3": "^7.8.5",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
