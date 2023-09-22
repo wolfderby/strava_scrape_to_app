@@ -1,4 +1,4 @@
-//D:\pitt\test-vite-app-3\frontend\src\components\D3Chart.tsx
+// D:\pitt\test-vite-app-3\frontend\src\components\D3Chart.tsx
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
@@ -38,6 +38,21 @@ const D3Chart = ({ data }) => {
          .attr('width', xScale.bandwidth())
          .attr('height', d => 300 - yScale(d))
          .attr('fill', 'blue');
+
+      // Add X-axis label
+      svg.append('text')
+         .attr('x', 250)
+         .attr('y', 320)
+         .attr('text-anchor', 'middle')
+         .text('Activity Index');
+
+      // Add Y-axis label
+      svg.append('text')
+         .attr('transform', 'rotate(-90)')
+         .attr('x', -150)
+         .attr('y', -40)
+         .attr('text-anchor', 'middle')
+         .text('Distance');
     }
   }, [data]);
 
