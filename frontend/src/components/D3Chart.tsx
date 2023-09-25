@@ -47,13 +47,58 @@ const D3Chart: React.FC<D3ChartProps> = ({ data }) => {
 
       // Define scales
       const xScale = d3.scaleBand()
-        .domain(data.map((d, i) => String(new Date(d.start_time).toLocaleDateString())))
+        .domain(data.map(d => String(new Date(d.start_time).toLocaleDateString())))
         .range([0, 500])
         .padding(0.1);
 
       const yScale = d3.scaleLinear()
         .domain([0, d3.max(distances) as number])
         .range([300, 0]);
+
+
+      // 1. Calculate the Slope and Intercept for the Trendline
+      let xMean = d3.mean(data, d => d.start_date_local_raw) as number;
+      let yMean = d3.mean(data, d => {
+        if (d.distance_raw === 0) {
+          return 0; // or some other substitute value
+        }
+        return d.moving_time_raw / d.distance_raw * 1609.34;
+      }) as number;
+      
+      let numerator = 0;
+      let denominator = 0;
+
+      console.log("Data:", data);
+
+      data.forEach(d => {
+        let x = d.start_date_local_raw;
+        let y = d.moving_time_raw / d.distance_raw * 1609.34;
+
+        // console.log(`For data point ${d}, x=${x}, y=${y}`);
+        // console.log(`(x - xMean) * (y - yMean) = ${(x - xMean) * (y - yMean)}`);
+
+          let pace = d.moving_time_raw / d.distance_raw * 1609.34;
+          console.log(`Pace for data point: ${pace}`);
+     
+          const problematicPoints = data.filter(d => !isFinite(d.moving_time_raw / d.distance_raw * 1609.34));
+          console.log('Problematic Data Points:', problematicPoints);
+          if (d.distance_raw !== 0) {
+            numerator += (x - xMean) * (y - yMean);
+            denominator += (x - xMean) ** 2;
+            console.log("Numerator: ", numerator);
+            console.log("Denominator: ", denominator);
+            console.log("xMean: ", xMean);
+            console.log("yMean: ", yMean);
+            /*
+            
+            */
+      }
+
+      });
+
+      let slope = numerator / denominator;
+      let intercept = yMean - (slope * xMean);
+
 
       // Draw bars
       const bars = svg.selectAll('rect')
@@ -110,7 +155,66 @@ const D3Chart: React.FC<D3ChartProps> = ({ data }) => {
         .attr('y', -40)
         .attr('text-anchor', 'middle')
         .text('Distance');
-    }
+
+      // 2. Plot the Trendline
+      let lineGenerator = d3.line<DataProps>()
+      .x(d => {
+        const xVal = xScale(new Date(d.start_time).toLocaleDateString());
+        console.log("xVal: ", xVal);  // ie 416.8053244592346
+        return xVal as number + xScale.bandwidth() / 2;
+      })
+        .y(d => {
+        const yVal = slope * d.start_date_local_raw + intercept;
+        console.log("slope: ", slope);  
+        console.log("d.start_date_local_raw: ", d.start_date_local_raw);  // ie 1692600999
+        console.log("yVal: ", yVal); 
+        console.log("intercept: ", intercept); 
+        return yScale(yVal);
+        });
+
+      svg.append('path')
+        .datum(data)
+        .attr('d', lineGenerator)
+        .attr('stroke', 'red')
+        .attr('fill', 'none');
+    // Add overlay circles for trendline tooltips
+if (isFinite(slope) && isFinite(intercept)) {  // Check if slope and intercept are finite
+  svg.selectAll('.overlayCircle')
+      .data(data)
+      .enter()
+      .append('circle')
+      .attr('class', 'overlayCircle')
+      .attr('cx', d => {
+        const xVal = xScale(new Date(d.start_time).toLocaleDateString());
+      return xVal ? xVal + xScale.bandwidth() / 2 : 0;
+      })
+      .attr('cy', d => {
+        const yVal = slope * d.start_date_local_raw + intercept;
+      return isFinite(yVal) ? yScale(yVal) : 0;  // Check if yVal is finite
+      })
+      .attr('r', 10) // radius of circle
+      .attr('fill', 'transparent')
+      .on('mouseover', function (event, d) {
+        // display tooltip logic
+      const estimatedPace = slope * d.start_date_local_raw + intercept;  // Your calculated pace
+      if (isFinite(estimatedPace)) { // Check if estimatedPace is finite
+        const paceMinutes = Math.floor(estimatedPace / 60);
+        const paceSeconds = Math.round(estimatedPace % 60).toString().padStart(2, '0');
+        tooltip.style("opacity", 1)
+          .html(`
+            <strong>Trendline data</strong><br/>
+            <strong>Estimated Pace:</strong> ${paceMinutes}:${paceSeconds} / mi <br>
+          `)
+          .style("left", `${event.pageX}px`)
+          .style("top", `${event.pageY}px`);
+      }
+      
+      })
+      .on('mouseout', function () {
+        tooltip.style("opacity", 0);
+      });
+     }
+   }
   }, [data]);
 
   return <div ref={chartRef}></div>;
