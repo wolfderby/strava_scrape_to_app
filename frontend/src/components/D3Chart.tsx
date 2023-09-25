@@ -5,6 +5,12 @@ import * as d3 from 'd3';
 // Define the type for your data, assuming each data object has a distance_raw property that is a number
 type DataProps = {
   distance_raw: number;
+  date: string;
+  start_date: string;
+  start_time: string;
+  moving_time: string;
+  moving_time_raw: number;
+  distance: string;
 };
 
 interface D3ChartProps {
@@ -45,31 +51,44 @@ const D3Chart: React.FC<D3ChartProps> = ({ data }) => {
 
       // Draw bars
       const bars = svg.selectAll('rect')
-         .data(distances)
-         .enter()
-         .append('rect')
-         .attr('x', (d, i) => xScale(String(i)) as number)
-         .attr('y', d => yScale(d) as number)
-         .attr('width', xScale.bandwidth())
-         .attr('height', d => 300 - yScale(d) as number)
-         .attr('fill', 'blue');
+        .data(data) // Use data directly instead of distances
+        .enter()
+        .append('rect')
+        .attr('x', (d, i) => xScale(String(i)) as number)
+        .attr('y', d => yScale(d.distance_raw) as number)
+        .attr('width', xScale.bandwidth())
+        .attr('height', d => 300 - yScale(d.distance_raw) as number)
+        .attr('fill', 'blue');
+ 
 
-      // Add tooltips
-      bars.on("mouseover", function (event, d) {  // Notice the 'event' argument
-        tooltip.style("opacity", 1)
-              .html(`Distance: ${d}`)
-              .style("left", `${event.pageX}px`)
-              .style("top", `${event.pageY}px`);
-      })
-      .on("mouseout", function () {
-        tooltip.style("opacity", 0);
-      });
+// Add tooltips
+bars.on("mouseover", function (event, d) {
+  // Calculate pace in MM:SS/mi
+  const pace = (d.moving_time_raw / d.distance_raw * 1609.34); // pace in seconds per mile
+  const paceMinutes = Math.floor(pace / 60);
+  const paceSeconds = Math.round(pace % 60).toString().padStart(2, '0');
+
+  tooltip.style("opacity", 1)
+         .html(`
+          <strong>Date:</strong> ${d.start_date} <br>
+          <strong>Time:</strong> ${new Date(d.start_time).toLocaleTimeString()} <br>
+          <strong>Duration:</strong> ${d.moving_time} <br>
+          <strong>Distance:</strong> ${d.distance} miles <br>
+          <strong>Pace:</strong> ${paceMinutes}:${paceSeconds} / mi
+          `)
+         .style("left", `${event.pageX}px`)
+         .style("top", `${event.pageY}px`);
+})
+.on("mouseout", function () {
+  tooltip.style("opacity", 0);
+});
 
 
       // Add click event to bars
-      bars.on("click", function (d: number, i: number) {
-          alert(`You clicked on bar ${i + 1} with distance ${d}`);
+      bars.on("click", function (_event: any, d: DataProps) {
+        alert(`You clicked on bar with distance ${d.distance_raw}`);
       });
+
 
       // Add X-axis label
       svg.append('text')
